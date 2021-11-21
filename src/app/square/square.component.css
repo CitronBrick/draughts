@@ -1,0 +1,30 @@
+:host, span {
+	width: 50px;
+	height: 50px;
+	display: flex;
+	justify-content: center;
+	align-items: center;
+}
+
+
+:host[data-bgcolor="red"] {
+	background-color: firebrick;
+}
+
+:host[data-bgcolor="black"] {
+	background-color: black;
+}
+
+
+:host[data-piece="w"] {
+	color: yellow;
+}
+
+:host[data-piece="b"] {
+	color: green;
+}
+
+span {
+	background-color: transparent;
+}
+
