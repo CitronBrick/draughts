@@ -1,4 +1,5 @@
-import { Component, OnInit, Input, HostBinding } from '@angular/core';
+import { HostListener, Component, OnInit, Input, HostBinding } from '@angular/core';
+import { GameService } from '../game.service';
 
 @Component({
     selector: 'app-square',
@@ -21,12 +22,38 @@ export class SquareComponent implements OnInit {
     @HostBinding('attr.data-bgcolor')
     bgColor: string = '';
 
-    constructor() {
+    @HostBinding('class.square')
+    className: boolean = true;
+
+    constructor(private gameService :GameService) {
     }
 
     ngOnInit(): void {
+        this.setBgColor();
+    }
+
+    ngOnChanges() :void{
+        this.setBgColor();
+    }
+
+    setBgColor(): void {
         this.bgColor = (((this.row%2) == (this.column%2))?'red':'black');
-        console.log(this.piece);
+    }
+
+    @HostListener('dragover',['$event'])
+    handleDragOver(evt :DragEvent) {
+        evt.preventDefault();
+    }
+
+    @HostListener('drop', ['$event']) 
+    handleDrop(evt: DragEvent) {
+        evt.preventDefault();
+        let data = evt?.dataTransfer?.getData('application/json');
+        if(data) {
+            let coord = JSON.parse(data);
+            // this.gameService.move(coord, {row: this.row, column: this.column});
+            this.gameService.makeLegalMove( coord, {row: this.row, column: this.column});
+        }
     }
 
 
