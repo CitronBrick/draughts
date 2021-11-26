@@ -7,5 +7,5 @@ export interface Move {
 	// column :number;
 	origin :Coord;
 	destination :Coord;
-	capture :boolean;
+	capture :false|Coord;
 }

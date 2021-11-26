@@ -32,17 +32,20 @@ export class GameService {
         console.log(this.board);
     }
 
-    move(origin :Coord, destination: Coord) {
+    move(origin :Coord, destination: Coord, capture: Coord|false) {
         let p = this.board[origin.row][origin.column];
         this.board[destination.row][destination.column] = (p == 'b' && destination.row == 7 || p == 'w' && destination.row == 0)?p.toUpperCase():p;
         this.board[origin.row][origin.column] = '';
+        if(capture) {
+            this.board[capture.row][capture.column] = '';
+        }
     }
 
     makeLegalMove(origin :Coord, destination:Coord) {
         let possibleMoveList = this.findPossibleMoves(this.turn?'w':'b');
-        let legal = possibleMoveList.find((m,i)=>(origin.row == m.origin.row && origin.column == m.origin.column && destination.row == m.destination.row && destination.column == m.destination.column));
+        let legal:Move|undefined = possibleMoveList.find((m,i)=>(origin.row == m.origin.row && origin.column == m.origin.column && destination.row == m.destination.row && destination.column == m.destination.column));
         if(legal) {
-            this.move(origin, destination);
+            this.move(origin, destination, legal.capture);
             this.turn = !this.turn;
         }
     }
@@ -52,15 +55,23 @@ export class GameService {
         this.board.forEach((row,r)=>{
             row.forEach((piece,c)=> {
                 if(piece.toLowerCase() == color) {
+                    var captureList: Move[] = this.findPossibleCaptures(piece, r, c);
+                    if(captureList.length) { 
+                        console.log(captureList);  
+                        res = res.concat(captureList);
+                        return;
+                    }
                     let destinationList: Coord[] = [];
                     let legal = false;
                     if(piece == 'b' || piece == 'B') {
                         if(r < 7) {
+                            // black piece move right
                             if(c < 7 &&  !this.board[r+1][c+1]) {
                                 // res.push({row: r+1, column: c+1, capture: false});
                                 destinationList.push({row: r+1 , column: c+1});
                                 legal = true;
                             }
+                            // black piece move left
                             if(c > 0 && !this.board[r+1][c-1]) {
                                 // res.push({row: r+1, column: c-1, capture: false});
                                 destinationList.push({row: r+1, column: c-1});
@@ -69,11 +80,13 @@ export class GameService {
                         }   
                         if(piece == 'B') {
                             if(r > 0) {
+                                // black queen move left backwards
                                 if(c > 0 && !this.board[r-1][c-1]) {
                                     // res.push({row: r-1, column: c-1, capture: false});
                                     destinationList.push({row: r-1, column:c-1});
                                     legal = true;
                                 }
+                                // black queen move right backwards
                                 if(c < 7 && !this.board[r-1][c+1]) {
                                     destinationList.push({row: r-1, column:c+1});
                                     legal = true;
@@ -83,11 +96,13 @@ export class GameService {
                     }
                     if(piece == 'w' || piece == 'W') {
                         if(r > 0) {
+                            // white piece move right
                             if(c < 7 && !this.board[r-1][c+1]) {
                                 // res.push({row: r-1, column: c+1, capture:false});
                                 destinationList.push({row: r-1, column:c+1});
                                 legal = true;
                             }
+                            // white piece move left
                             if( c > 0 && !this.board[r-1][c-1]) {
                                 // res.push({row: r-1, column: c-1, capture: false});        
                                 destinationList.push({row: r-1, column:c-1});
@@ -95,17 +110,15 @@ export class GameService {
                             }
                         }
                         if(piece == 'W') {
-                            console.log('white queen');
                             if(r < 7) {
-                                console.log('not bottom row');
+                                // white queen move left backwards
                                 if(c > 0 && !this.board[r+1][c-1]) {
-                                    console.log('left free');
                                     // res.push({row: r+1, column: c-1, capture: false});
                                     destinationList.push({row: r+1, column: c-1});
                                     legal = true;
                                 }
+                                // white queen move right backwards
                                 if(c < 7 && !this.board[r+1][c+1]) {
-                                    console.log('right free');
 
                                     // res.push({row: r+1, column: c-1, capture: false});
                                     destinationList.push({row: r+1, column: c+1});
@@ -125,4 +138,56 @@ export class GameService {
         });
         return res;
     }
+
+
+    findPossibleCaptures(piece :string, row: number, column :number) {
+        var res:Move[] = [];
+        var origin = {row,column};
+        let targetList = [
+            [[-1,-1],[-2,-2]],
+            [[-1,+1],[-2,+2]],
+            [[+1,-1],[+2,-2]],
+            [[+1,-1],[+2,-2]]
+        ];
+        // white and black queen capture
+        if(piece.toUpperCase() == piece) {
+            res = res.concat(this.findCapturesForPiece(piece, row, column, targetList));
+        } else if(piece == 'w') {
+            res = res.concat(this.findCapturesForPiece(piece, row, column, targetList.slice(0,2)));
+        } else if(piece == 'b') {
+            res = res.concat(this.findCapturesForPiece(piece, row, column, targetList.slice(2)));
+        }
+        return res;
+    }
+
+    findCapturesForPiece(piece: string, row: number, column :number, targetList : number[][][]) :Move[] {
+        let result :Move[] = [];
+        return targetList.reduce((acc,pair)=> {
+            let res = acc;
+            // capture and destination must be within board
+            if(pair.every((c)=> (this.within(row+c[0],0,7) && this.within(column+c[1],0,7) ))) {
+                let p = this.board[row + pair[0][0]][column + pair[0][1]];
+                if(this.areEnemies(piece,p) && !this.board[row+pair[1][0]][column+pair[1][1]] ) {
+                    let capture = this.arrayToCoord([row + pair[0][0], column + pair[0][1]]);
+                    let destination = this.arrayToCoord([row + pair[1][0], column+pair[1][1]]);
+                    res = res.concat({origin:{row,column}, destination , capture});
+                }
+            }
+            return res;
+        },result);
+    }
+
+    arrayToCoord([row,column] : number[]): Coord {
+        return {row,column};
+    }
+
+    areEnemies(color1 :string, color2 :string): boolean {
+        return (color1 && color2)?(color1.toLowerCase() != color2.toLowerCase()):false;
+    }
+
+    within(num:number,min:number,max:number) :boolean  {
+        return num >= min && num <= max;
+    }
 }
+
+
