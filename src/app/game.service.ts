@@ -48,6 +48,16 @@ export class GameService {
             this.move(origin, destination, legal.capture);
             this.turn = !this.turn;
         }
+        this.checkWin();
+    }
+
+    checkWin() {
+        ['w','b'].forEach((color)=>{
+            let colorList: string[] = this.board.flat().filter(p=>p.toLowerCase() == color);
+            if(colorList.length == 0) {
+                alert(((color=='w')?'black':'white') + ' has won !!!');
+            }
+        })
     }
 
     findPossibleMoves(color :string) :Move[]  {
