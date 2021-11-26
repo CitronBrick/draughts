@@ -59,7 +59,7 @@ export class GameService {
                     if(captureList.length) { 
                         console.log(captureList);  
                         res = res.concat(captureList);
-                        return;
+                        // return;
                     }
                     let destinationList: Coord[] = [];
                     let legal = false;
@@ -136,6 +136,11 @@ export class GameService {
                 }
             });
         });
+        // force capture
+        if(res.some(m=>m.capture)) {
+            res = res.filter(m=>m.capture);
+            console.log(res);             
+        }
         return res;
     }
 
@@ -147,7 +152,7 @@ export class GameService {
             [[-1,-1],[-2,-2]],
             [[-1,+1],[-2,+2]],
             [[+1,-1],[+2,-2]],
-            [[+1,-1],[+2,-2]]
+            [[+1,+1],[+2,+2]]
         ];
         // white and black queen capture
         if(piece.toUpperCase() == piece) {
