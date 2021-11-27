@@ -1,4 +1,5 @@
 import { Component, OnInit, HostBinding, HostListener, Input } from '@angular/core';
+import { GameService } from '../game.service';
 
 @Component({
   selector: 'app-piece',
@@ -23,7 +24,11 @@ export class PieceComponent implements OnInit {
 	@HostBinding('attr.data-color')
 	camp: string = 'w';
 
-    constructor() { }
+    constructor(private gameService :GameService) {
+    	this.gameService.winner$.subscribe((winner :string)=>{
+    		this.draggable = winner.length == 0;
+    	});
+    }
 
     ngOnInit(): void {
         

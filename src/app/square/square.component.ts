@@ -25,7 +25,14 @@ export class SquareComponent implements OnInit {
     @HostBinding('class.square')
     className: boolean = true;
 
+    dropDisabled: boolean = false;
+
     constructor(private gameService :GameService) {
+        this.gameService.winner$.subscribe((winner :string)=>{
+            if(winner) {
+                this.dropDisabled = true;
+            }
+        });
     }
 
     ngOnInit(): void {
@@ -48,6 +55,11 @@ export class SquareComponent implements OnInit {
     @HostListener('drop', ['$event']) 
     handleDrop(evt: DragEvent) {
         evt.preventDefault();
+
+        if(this.dropDisabled) {
+            return;
+        }
+
         let data = evt?.dataTransfer?.getData('application/json');
         if(data) {
             let coord = JSON.parse(data);

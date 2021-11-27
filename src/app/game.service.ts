@@ -2,13 +2,16 @@ import { Injectable } from '@angular/core';
 import {Coord} from './coord';
 import { Move } from './move';
 
+import { Subject } from 'rxjs';
+
 @Injectable({
     providedIn: 'root'
 })
 export class GameService {
 
     board :Array<Array<string>> = [['']];
-    turn: boolean = true;
+    turn: boolean = true; // white turn
+    winner$: Subject<string> = new Subject();
 
 
     constructor() {
@@ -29,7 +32,9 @@ export class GameService {
                 
             })
         );
-        console.log(this.board);
+        this.turn = true;
+        this.winner$.next('');
+
     }
 
     move(origin :Coord, destination: Coord, capture: Coord|false) {
@@ -55,6 +60,7 @@ export class GameService {
         ['w','b'].forEach((color)=>{
             let colorList: string[] = this.board.flat().filter(p=>p.toLowerCase() == color);
             if(colorList.length == 0) {
+                this.winner$.next(color);
                 alert(((color=='w')?'black':'white') + ' has won !!!');
             }
         })
@@ -203,6 +209,8 @@ export class GameService {
     within(num:number,min:number,max:number) :boolean  {
         return num >= min && num <= max;
     }
+
+
 }
 
 
