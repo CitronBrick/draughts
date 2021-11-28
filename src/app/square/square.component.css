@@ -7,7 +7,7 @@
 }
 
 
-:host[data-bgcolor="red"] {
+:host[data-bgcolor="white"] {
 	background-color: firebrick;
 }
 

@@ -73,7 +73,6 @@ export class GameService {
                 if(piece.toLowerCase() == color) {
                     var captureList: Move[] = this.findPossibleCaptures(piece, r, c);
                     if(captureList.length) { 
-                        console.log(captureList);  
                         res = res.concat(captureList);
                         // return;
                     }
@@ -155,7 +154,6 @@ export class GameService {
         // force capture
         if(res.some(m=>m.capture)) {
             res = res.filter(m=>m.capture);
-            console.log(res);             
         }
         return res;
     }

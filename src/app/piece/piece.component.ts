@@ -1,5 +1,7 @@
 import { Component, OnInit, HostBinding, HostListener, Input } from '@angular/core';
 import { GameService } from '../game.service';
+import { SettingsService } from '../settings.service';
+
 
 @Component({
   selector: 'app-piece',
@@ -24,14 +26,33 @@ export class PieceComponent implements OnInit {
 	@HostBinding('attr.data-color')
 	camp: string = 'w';
 
-    constructor(private gameService :GameService) {
+	whitePieceColor: string='';
+	blackPieceColor:string = '';
+
+    constructor(private gameService :GameService, private settingsService :SettingsService) {
     	this.gameService.winner$.subscribe((winner :string)=>{
     		this.draggable = winner.length == 0;
     	});
     }
 
     ngOnInit(): void {
-        
+    	// subscribe should happen in ngOnInit as
+    	// piece color depends on camp which is @Input()
+    	this.settingsService.whitePieceColor$.subscribe((color)=>{
+    		if(this.camp.toLowerCase() == 'w') {
+    			this.whitePieceColor = color;
+    		}
+    	});
+    	this.settingsService.blackPieceColor$.subscribe((color)=>{
+    		if(this.camp.toLowerCase() == 'b') {
+    			this.blackPieceColor = color;
+    		}
+    	});
+    }
+
+    @HostBinding('style.backgroundColor')
+    get backgroundColor() : string {
+    	return this.camp.toLowerCase()=='w'?this.whitePieceColor:this.blackPieceColor;
     }
 
     @HostListener('dragstart', ['$event']) 

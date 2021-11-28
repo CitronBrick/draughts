@@ -1,5 +1,6 @@
 import { HostListener, Component, OnInit, Input, HostBinding } from '@angular/core';
 import { GameService } from '../game.service';
+import { SettingsService } from '../settings.service';
 
 @Component({
     selector: 'app-square',
@@ -22,21 +23,37 @@ export class SquareComponent implements OnInit {
     @HostBinding('attr.data-bgcolor')
     bgColor: string = '';
 
+
+    whiteSquareColor :string = '';
+    blackSquareColor :string = '';
+
     @HostBinding('class.square')
     className: boolean = true;
 
     dropDisabled: boolean = false;
 
-    constructor(private gameService :GameService) {
+    constructor(private gameService :GameService, private settingsService :SettingsService) {
         this.gameService.winner$.subscribe((winner :string)=>{
             if(winner) {
                 this.dropDisabled = true;
             }
         });
+
+        this.settingsService.whiteSquareColor$.subscribe((color :string) =>{
+            if(this.bgColor == 'white') {
+                this.whiteSquareColor = color;
+            }
+            // console.log(color);
+        });
+
+        this.settingsService.blackSquareColor$.subscribe((color: string)=> {
+            this.blackSquareColor = color;
+        });
+
     }
 
     ngOnInit(): void {
-        this.setBgColor();
+        // this.setBgColor();
     }
 
     ngOnChanges() :void{
@@ -44,7 +61,12 @@ export class SquareComponent implements OnInit {
     }
 
     setBgColor(): void {
-        this.bgColor = (((this.row%2) == (this.column%2))?'red':'black');
+        this.bgColor = (((this.row%2) == (this.column%2))?'white':'black');
+    }
+
+    @HostBinding('style.backgroundColor')
+    get backgroundColor() : string {
+        return (this.bgColor == 'white')?this.whiteSquareColor: this.blackSquareColor;
     }
 
     @HostListener('dragover',['$event'])
