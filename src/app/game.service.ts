@@ -2,7 +2,7 @@ import { Injectable } from '@angular/core';
 import {Coord} from './coord';
 import { Move } from './move';
 
-import { Subject } from 'rxjs';
+import { Subject,BehaviorSubject } from 'rxjs';
 
 @Injectable({
     providedIn: 'root'
@@ -10,7 +10,7 @@ import { Subject } from 'rxjs';
 export class GameService {
 
     board :Array<Array<string>> = [['']];
-    turn: boolean = true; // white turn
+    turn$: BehaviorSubject<boolean> = new BehaviorSubject<boolean>(true); // white turn
     winner$: Subject<string> = new Subject();
 
 
@@ -32,7 +32,7 @@ export class GameService {
                 
             })
         );
-        this.turn = true;
+        this.turn$.next(true);
         this.winner$.next('');
 
     }
@@ -47,11 +47,11 @@ export class GameService {
     }
 
     makeLegalMove(origin :Coord, destination:Coord) {
-        let possibleMoveList = this.findPossibleMoves(this.turn?'w':'b');
+        let possibleMoveList = this.findPossibleMoves(this.turn$.value?'w':'b');
         let legal:Move|undefined = possibleMoveList.find((m,i)=>(origin.row == m.origin.row && origin.column == m.origin.column && destination.row == m.destination.row && destination.column == m.destination.column));
         if(legal) {
             this.move(origin, destination, legal.capture);
-            this.turn = !this.turn;
+            this.turn$.next(!this.turn$.value);
         }
         this.checkWin();
     }
@@ -60,8 +60,9 @@ export class GameService {
         ['w','b'].forEach((color)=>{
             let colorList: string[] = this.board.flat().filter(p=>p.toLowerCase() == color);
             if(colorList.length == 0) {
-                this.winner$.next(color);
-                alert(((color=='w')?'black':'white') + ' has won !!!');
+                let winner = (color=='w')?'Black':'White';
+                this.winner$.next(winner);
+                alert(winner + ' has won !!!');
             }
         })
     }
@@ -74,7 +75,6 @@ export class GameService {
                     var captureList: Move[] = this.findPossibleCaptures(piece, r, c);
                     if(captureList.length) { 
                         res = res.concat(captureList);
-                        // return;
                     }
                     let destinationList: Coord[] = [];
                     let legal = false;

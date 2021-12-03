@@ -9,15 +9,17 @@ export class SettingsService {
     whiteSquareColor$ :BehaviorSubject<string>; 
     blackSquareColor$ :BehaviorSubject<string>;
     whitePieceColor$ :Subject<string>;
-    blackPieceColor$ :Subject<string>
+    blackPieceColor$ :Subject<string>;
+
+    squareSize$ : Subject<number>;
 
     constructor() {
-        this.whiteSquareColor$ = new BehaviorSubject('firebrick');
-        this.blackSquareColor$ = new BehaviorSubject('black');
-        // this.whitePieceColor$ = new BehaviorSubject('yellow');
-        // this.blackPieceColor$ = new BehaviorSubject('greenyellow');
-        this.whitePieceColor$ = new BehaviorSubject('orange');
-        this.blackPieceColor$ = new BehaviorSubject('mediumvioletred');
+        this.whiteSquareColor$ = new BehaviorSubject('#B22222'); // firebrick
+        this.blackSquareColor$ = new BehaviorSubject('#000000'); // black
+        this.whitePieceColor$ = new BehaviorSubject('#FFA500'); // orange
+        this.blackPieceColor$ = new BehaviorSubject('#C71585'); // mediumvioletred
+
+        this.squareSize$ = new BehaviorSubject(50);
 
     }
 

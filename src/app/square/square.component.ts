@@ -30,6 +30,10 @@ export class SquareComponent implements OnInit {
     @HostBinding('class.square')
     className: boolean = true;
 
+    @HostBinding('style.height')
+    @HostBinding('style.width')
+    squareSize :string = '';
+
     dropDisabled: boolean = false;
 
     constructor(private gameService :GameService, private settingsService :SettingsService) {
@@ -48,6 +52,10 @@ export class SquareComponent implements OnInit {
 
         this.settingsService.blackSquareColor$.subscribe((color: string)=> {
             this.blackSquareColor = color;
+        });
+
+        this.settingsService.squareSize$.subscribe((size :number) => {
+            this.squareSize = size + 'px';
         });
 
     }

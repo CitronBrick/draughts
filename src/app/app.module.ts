@@ -8,6 +8,7 @@ import { SquareComponent } from './square/square.component';
 import { BoardComponent } from './board/board.component';
 import { PieceComponent } from './piece/piece.component';
 import { SettingsBarComponent } from './settings-bar/settings-bar.component';
+import { StatusBarComponent } from './status-bar/status-bar.component';
 
 @NgModule({
   declarations: [
@@ -15,7 +16,8 @@ import { SettingsBarComponent } from './settings-bar/settings-bar.component';
     SquareComponent,
     BoardComponent,
     PieceComponent,
-    SettingsBarComponent
+    SettingsBarComponent,
+    StatusBarComponent
   ],
   imports: [
     BrowserModule,

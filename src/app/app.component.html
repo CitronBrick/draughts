@@ -2,9 +2,10 @@
 <router-outlet></router-outlet>
 
 
-<div class="app-board-wrapper">
-	<app-board></app-board>
-	<br>
-	<input type="range" min="0.5" max="1.5" step="0.1">
+<div class="flexParent">
+	<div class="app-board-wrapper">
+		<app-board></app-board>
+	</div>
+	<app-settings-bar></app-settings-bar>
 </div>
-<app-settings-bar></app-settings-bar>
+<app-status-bar></app-status-bar>

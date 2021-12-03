@@ -1,10 +1,7 @@
 .app-board-wrapper {
-	transform: scale(1.5);
-	background-color: rgba(0,0,220,0.3);
-	outline: 1px solid gold;
-	position: absolute;
-	top: 10px;
-	left: 10px;
-	transform-origin: 0px 0px;
-	display: inline-block;
+	width: 630px;
+}
+
+.flexParent {
+	display: flex;
 }
