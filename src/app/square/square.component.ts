@@ -51,7 +51,6 @@ export class SquareComponent implements OnInit, OnDestroy {
 
 
     ngOnInit(): void {
-        //console.log(`init ${this.column} ${this.row} ` );
         this.setBgColor();
 
         this.makeSubscriptions();
@@ -70,7 +69,6 @@ export class SquareComponent implements OnInit, OnDestroy {
 
         let whiteSquareSub :Subscription = this.settingsService.whiteSquareColor$.subscribe((color :string) =>{
             if(this.bgColor == 'white') {
-                console.log('white color changed ' + color);
                 this.whiteSquareColor = color;
                 this.setBgColor();
             }
@@ -131,7 +129,6 @@ export class SquareComponent implements OnInit, OnDestroy {
         let data = evt?.dataTransfer?.getData('application/json');
         if(data) {
             let coord = JSON.parse(data);
-            // this.gameService.move(coord, {row: this.row, column: this.column});
             this.gameService.makeLegalMove( coord, {row: this.row, column: this.column});
         }
     }
