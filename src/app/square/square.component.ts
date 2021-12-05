@@ -1,13 +1,15 @@
-import { HostListener, Component, OnInit, Input, HostBinding } from '@angular/core';
+import { HostListener, Component, OnInit, OnDestroy, Input, HostBinding } from '@angular/core';
 import { GameService } from '../game.service';
 import { SettingsService } from '../settings.service';
+
+import { Subscription } from 'rxjs';
 
 @Component({
     selector: 'app-square',
     templateUrl: './square.component.html',
     styleUrls: ['./square.component.css']
 })
-export class SquareComponent implements OnInit {
+export class SquareComponent implements OnInit, OnDestroy {
 
 
     @Input()
@@ -27,6 +29,9 @@ export class SquareComponent implements OnInit {
     whiteSquareColor :string = '';
     blackSquareColor :string = '';
 
+    @HostBinding('style.backgroundColor')
+    backgroundColor :string = '';
+
     @HostBinding('class.square')
     className: boolean = true;
 
@@ -34,48 +39,81 @@ export class SquareComponent implements OnInit {
     @HostBinding('style.width')
     squareSize :string = '';
 
+    subscriptionList :Subscription[] = [];
+
     dropDisabled: boolean = false;
 
     constructor(private gameService :GameService, private settingsService :SettingsService) {
-        this.gameService.winner$.subscribe((winner :string)=>{
+
+
+
+    }
+
+
+    ngOnInit(): void {
+        //console.log(`init ${this.column} ${this.row} ` );
+        this.setBgColor();
+
+        this.makeSubscriptions();
+    }
+
+    makeSubscriptions() : void {
+        this.subscriptionList = [];
+
+        //this.backgroundColor = this.isWhiteSquare()?this.whiteSquareColor:this.blackSquareColor;
+
+        let winnerSub: Subscription = this.gameService.winner$.subscribe((winner :string)=>{
             if(winner) {
                 this.dropDisabled = true;
             }
         });
 
-        this.settingsService.whiteSquareColor$.subscribe((color :string) =>{
+        let whiteSquareSub :Subscription = this.settingsService.whiteSquareColor$.subscribe((color :string) =>{
             if(this.bgColor == 'white') {
+                console.log('white color changed ' + color);
                 this.whiteSquareColor = color;
+                this.setBgColor();
             }
-            // console.log(color);
         });
 
-        this.settingsService.blackSquareColor$.subscribe((color: string)=> {
-            this.blackSquareColor = color;
+        let blackSquareSub :Subscription = this.settingsService.blackSquareColor$.subscribe((color: string)=> {
+            if(this.bgColor == 'black') {
+                this.blackSquareColor = color;
+                this.setBgColor();
+            }
         });
 
-        this.settingsService.squareSize$.subscribe((size :number) => {
+        let squareSizeSub :Subscription = this.settingsService.squareSize$.subscribe((size :number) => {
             this.squareSize = size + 'px';
         });
 
-    }
 
-    ngOnInit(): void {
-        // this.setBgColor();
+        [winnerSub,whiteSquareSub, blackSquareSub, squareSizeSub].forEach((sub :Subscription) => {
+            this.subscriptionList.push(sub);
+        });
     }
 
     ngOnChanges() :void{
         this.setBgColor();
+        this.makeSubscriptions();
+
     }
 
     setBgColor(): void {
         this.bgColor = (((this.row%2) == (this.column%2))?'white':'black');
+        this.backgroundColor = this.isWhiteSquare()?this.whiteSquareColor:this.blackSquareColor;
     }
 
+    isWhiteSquare() :boolean {
+        return (this.row%2) == (this.column%2); 
+    }
+
+    /*
     @HostBinding('style.backgroundColor')
     get backgroundColor() : string {
-        return (this.bgColor == 'white')?this.whiteSquareColor: this.blackSquareColor;
+        return (this.isWhiteSquare())?this.whiteSquareColor: this.blackSquareColor;
     }
+    */
 
     @HostListener('dragover',['$event'])
     handleDragOver(evt :DragEvent) {
@@ -98,6 +136,10 @@ export class SquareComponent implements OnInit {
         }
     }
 
-
+    ngOnDestroy() {
+        this.subscriptionList.forEach((sub:Subscription)=> {
+            sub.unsubscribe();
+        })
+    }
 
 }

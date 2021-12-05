@@ -1,6 +1,7 @@
-import { Component, OnInit, HostBinding, HostListener, Input } from '@angular/core';
+import { Component, OnInit, OnDestroy, HostBinding, HostListener, Input } from '@angular/core';
 import { GameService } from '../game.service';
 import { SettingsService } from '../settings.service';
+import { Subscription } from 'rxjs';
 
 
 @Component({
@@ -8,7 +9,7 @@ import { SettingsService } from '../settings.service';
   templateUrl: './piece.component.html',
   styleUrls: ['./piece.component.css']
 })
-export class PieceComponent implements OnInit {
+export class PieceComponent implements OnInit, OnDestroy {
 
 	@HostBinding('attr.draggable')
 	draggable: boolean = true; 
@@ -29,25 +30,29 @@ export class PieceComponent implements OnInit {
 	whitePieceColor: string='';
 	blackPieceColor:string = '';
 
+    subscriptionList : Subscription[] = [];
+
     constructor(private gameService :GameService, private settingsService :SettingsService) {
-    	this.gameService.winner$.subscribe((winner :string)=>{
-    		this.draggable = winner.length == 0;
-    	});
     }
 
     ngOnInit(): void {
+    	let winnerSub : Subscription = this.gameService.winner$.subscribe((winner :string)=>{
+    		this.draggable = winner.length == 0;
+    	});
     	// subscribe should happen in ngOnInit as
     	// piece color depends on camp which is @Input()
-    	this.settingsService.whitePieceColor$.subscribe((color)=>{
+    	let whitePieceColorSub : Subscription = this.settingsService.whitePieceColor$.subscribe((color)=>{
     		if(this.camp.toLowerCase() == 'w') {
     			this.whitePieceColor = color;
     		}
     	});
-    	this.settingsService.blackPieceColor$.subscribe((color)=>{
+    	let blackPieceColorSub: Subscription = this.settingsService.blackPieceColor$.subscribe((color)=>{
     		if(this.camp.toLowerCase() == 'b') {
     			this.blackPieceColor = color;
     		}
     	});
+
+        this.subscriptionList = [winnerSub,whitePieceColorSub,blackPieceColorSub];
     }
 
     @HostBinding('style.backgroundColor')
@@ -58,6 +63,13 @@ export class PieceComponent implements OnInit {
     @HostListener('dragstart', ['$event']) 
     handleDragStart(evt: DragEvent) {
     	evt?.dataTransfer?.setData('application/json', JSON.stringify({row:this.row, column:this.column}))
+    }
+
+
+    ngOnDestroy() :void {
+        this.subscriptionList.forEach((sub :Subscription) =>{
+            sub.unsubscribe();
+        });
     }
 
 }

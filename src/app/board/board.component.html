@@ -1,5 +1,5 @@
 
 
 <div class="row" *ngFor="let row of game.board; index as i">
-	<app-square [row]="i" [column]="j" [piece]="row[j]" *ngFor="let sq of row; index as j"></app-square>
+	<app-square [row]="i" [column]="j" [piece]="sq" *ngFor="let sq of row; index as j"></app-square>
 </div>

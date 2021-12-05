@@ -1,0 +1,6 @@
+div {
+	font-family: Tahoma;
+	display: grid;
+	grid-template-columns: 100px 100px;
+	margin: 5px 0px;
+}

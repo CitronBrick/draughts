@@ -41,9 +41,11 @@ export class GameService {
         let p = this.board[origin.row][origin.column];
         this.board[destination.row][destination.column] = (p == 'b' && destination.row == 7 || p == 'w' && destination.row == 0)?p.toUpperCase():p;
         this.board[origin.row][origin.column] = '';
+        let msg = `moved from [${origin.row} ${origin.column}] to [${destination.row} ${destination.column}] `;
         if(capture) {
             this.board[capture.row][capture.column] = '';
         }
+        console.log(msg);
     }
 
     makeLegalMove(origin :Coord, destination:Coord) {
@@ -62,7 +64,7 @@ export class GameService {
             if(colorList.length == 0) {
                 let winner = (color=='w')?'Black':'White';
                 this.winner$.next(winner);
-                alert(winner + ' has won !!!');
+                // alert(winner + ' has won !!!');
             }
         })
     }
