@@ -5,6 +5,7 @@
 
 .flexParent {
 	display: flex;
+	justify-content: space-between;
 }
 
 main {
@@ -19,3 +20,13 @@ h1 {
 	font-family: "Old English Text MT", "CommercialScript BT",Cambria,Tahoma;
 	font-size: 36px;
 }
+
+.right {
+	width: 300px;
+	font-family: Tahoma;
+	display: flex;
+	flex-flow: column nowrap;
+	justify-content: space-between;
+}
+
+
