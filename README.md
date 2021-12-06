@@ -2,6 +2,7 @@
 
 This game is developped using Angular.
 
+[Play online](https://citronbrick.github.io/draughts/)
 
 
 ## Development server
